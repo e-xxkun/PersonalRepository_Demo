@@ -2,9 +2,8 @@ package com.xxkun.relayserver;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Date;
 
-public class HeartbeatSocketThread extends Thread{
+public class NetworkTransforThread extends Thread{
 
     private final Socket socket;
     private boolean stop = false;
@@ -15,22 +14,19 @@ public class HeartbeatSocketThread extends Thread{
     private final String KEEP_ALIVE = "ARE_YOU_OK_?";
     private final String KEEP_ALIVE_CHECK = "SURE";
     private final String CONNECT = "CONNECT";
-    private final String EVENT_HEARD = "EVENT:";
 
     private long checkTimeInterval = 2000;
 
     private OnHeartbeatSocketResponse heartbeatSocketResponse;
 
-    public HeartbeatSocketThread(Socket socket) {
+    public NetworkTransforThread(Socket socket) {
         this.socket = socket;
     }
 
     public void send(String data) {
-        outData = EVENT_HEARD + data;
+        outData = data;
         event = true;
-        if (isInterrupted()) {
-            interrupt();
-        }
+        interrupt();
     }
 
     @Override
@@ -51,11 +47,7 @@ public class HeartbeatSocketThread extends Thread{
                 stop = true;
             }
             while (!stop) {
-                try {
-                    sleep(checkTimeInterval);
-                } catch (InterruptedException e) {
-                    System.out.println("CLIENT Awaken");
-                }
+                sleep(checkTimeInterval);
                 if (event) {
                     bufferedWriter.write(outData);
                 } else {
@@ -87,7 +79,7 @@ public class HeartbeatSocketThread extends Thread{
             bufferedWriter.close();
             socket.shutdownOutput();
             socket.close();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             System.out.println("ERROR");
         } finally {
@@ -101,9 +93,9 @@ public class HeartbeatSocketThread extends Thread{
 
     public interface OnHeartbeatSocketResponse {
 
-        public void onConnect(HeartbeatSocketThread heartbeatSocketThread, String data);
+        public void onConnect(NetworkTransforThread heartbeatSocketThread, String data);
 
-        public void onResponse(HeartbeatSocketThread heartbeatSocketThread, String data);
+        public void onResponse(NetworkTransforThread heartbeatSocketThread, String data);
     }
 }
 
