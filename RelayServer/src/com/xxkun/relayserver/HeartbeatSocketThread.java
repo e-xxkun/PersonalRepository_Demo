@@ -17,7 +17,7 @@ public class HeartbeatSocketThread extends Thread{
     private final String CONNECT = "CONNECT";
     private final String EVENT_HEARD = "EVENT:";
 
-    private long checkTimeInterval = 2000;
+    private long checkTimeInterval = 10000;
 
     private OnHeartbeatSocketResponse heartbeatSocketResponse;
 
@@ -28,7 +28,8 @@ public class HeartbeatSocketThread extends Thread{
     public void send(String data) {
         outData = EVENT_HEARD + data;
         event = true;
-        if (isInterrupted()) {
+        System.out.println("SEND: " + outData);
+        if (!isInterrupted()) {
             interrupt();
         }
     }
@@ -72,7 +73,7 @@ public class HeartbeatSocketThread extends Thread{
                         }
                         event = false;
                     } else if (KEEP_ALIVE_CHECK.equals(inData)) {
-                        System.out.println("CLIENT_IP_" + socket.getRemoteSocketAddress() + "：ALIVE");
+                        System.out.println("CLIENT_IP_" + socket.getRemoteSocketAddress() + "：ALIVE ");
                     } else {
                         System.out.println("CLIENT_IP_" + socket.getRemoteSocketAddress() + "：Command not recognized -> " + inData);
                     }

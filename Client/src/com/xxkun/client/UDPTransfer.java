@@ -48,7 +48,7 @@ public class UDPTransfer {
 
                 System.out.println("Server_"+inPacket.getAddress()+":"+inPacket.getPort()+" ：" + inData);
             }
-
+            scanner.close();
             datagramSocket.close();
         } catch (SocketException e) {
             e.printStackTrace();

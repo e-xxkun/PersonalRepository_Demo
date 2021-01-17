@@ -4,18 +4,25 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.Scanner;
+import java.util.Date;
 
-public class UDPTransfer {
+public class UDPReceiveThread extends Thread {
+
+    private static final int DATA_LEN = 4096;
 
     private DatagramPacket outPacket;
     private DatagramPacket inPacket;
 
-    private static final int DATA_LEN = 4096;
+    private int port;
 
     private OnUDPResponse udpResponse;
 
-    public String receive(int port) {
+    public UDPReceiveThread(int port) {
+        this.port = port;
+    }
+
+    @Override
+    public void run() {
         String inData = null;
         try {
             DatagramSocket datagramSocket = new DatagramSocket(port);
@@ -25,13 +32,20 @@ public class UDPTransfer {
             inPacket = new DatagramPacket(bytes, bytes.length);
 
             datagramSocket.receive(inPacket);
+            System.out.println("UDP Check " + new Date().toString());
 
             byte[] data = inPacket.getData();
             inData = new String(data);
             if (inData != null) {
-                System.out.println("CLIENT_" + inPacket.getAddress() + ":" + inPacket.getPort() + " ： Response -> " + inData);
+                System.out.println("UDP_CLIENT_" + inPacket.getAddress() + ":" + inPacket.getPort() + " ： Response -> " + inData);
+                if (udpResponse != null) {
+                    udpResponse.onResponse(inPacket.getAddress().getHostAddress(), inPacket.getPort(), inData);
+                }
             } else {
-                System.out.println("CLIENT_" + inPacket.getAddress() + ":" + inPacket.getPort() + " ： CONNECT FAIL");
+                System.out.println("UDP_CLIENT_" + inPacket.getAddress() + ":" + inPacket.getPort() + " ： CONNECT FAIL");
+                if (udpResponse != null) {
+                    udpResponse.onResponse(inPacket.getAddress().getHostAddress(), inPacket.getPort(), "CONNECT FAIL");
+                }
             }
             datagramSocket.close();
         } catch (SocketException e) {
@@ -40,7 +54,6 @@ public class UDPTransfer {
             e.printStackTrace();
         } finally {
         }
-        return inData;
     }
 
     public void setOnUDPResponse(OnUDPResponse udpResponse) {
@@ -48,6 +61,6 @@ public class UDPTransfer {
     }
 
     public interface OnUDPResponse {
-        public void onResponse(String data);
+        public void onResponse(String hostAddress, int port, String data);
     }
 }

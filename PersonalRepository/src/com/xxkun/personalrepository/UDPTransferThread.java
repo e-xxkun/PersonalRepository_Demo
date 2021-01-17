@@ -7,15 +7,23 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Scanner;
 
-public class UDPTransfer {
+public class UDPTransferThread extends Thread{
+
+    private static final int DATA_LEN = 4096;
 
     private DatagramPacket outPacket;
     private DatagramPacket inPacket;
 
-    private static final int DATA_LEN = 4096;
+    private SocketAddress receiveAddress;
+    private String token;
 
-    public void sendAndReceive(SocketAddress receiveAddress, String token) {
-//        SocketAddress receiveAddress = new InetSocketAddress("127.0.0.1", 8888);
+    public UDPTransferThread(SocketAddress receiveAddress, String token) {
+        this.receiveAddress = receiveAddress;
+        this.token = token;
+    }
+
+    @Override
+    public void run() {
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
 
@@ -23,9 +31,13 @@ public class UDPTransfer {
             inPacket = new DatagramPacket(inBuff, inBuff.length);
             Scanner scanner = new Scanner(System.in);
 
-            byte[] outBuff = token.getBytes();
+            String checkData = token;
+            byte[] outBuff = checkData.getBytes();
             outPacket = new DatagramPacket(outBuff, outBuff.length, receiveAddress);
             datagramSocket.send(outPacket);
+
+            System.out.println("UDP Server START");
+
             boolean stop = false;
             while (!stop) {
                 datagramSocket.receive(inPacket);
@@ -55,6 +67,5 @@ public class UDPTransfer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

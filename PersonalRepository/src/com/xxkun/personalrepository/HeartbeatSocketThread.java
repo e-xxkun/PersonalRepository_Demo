@@ -39,7 +39,7 @@ public class HeartbeatSocketThread extends Thread{
                     } else if (inData.startsWith(EVENT_HEARD)) {
                         System.out.println("SERVER_IP_" + socket.getRemoteSocketAddress() + "：Request -> "+inData);
                         if (heartbeatSocketResponse != null) {
-                            heartbeatSocketResponse.onResponse(inData);
+                            heartbeatSocketResponse.onResponse(socket.getInetAddress().getHostAddress(), socket.getPort(), inData);
                         }
                         event = true;
                     } else {
@@ -52,6 +52,7 @@ public class HeartbeatSocketThread extends Thread{
                 if (event) {
                     String outData = handleResponse(inData);
                     bufferedWriter.write(outData);
+                    event = false;
                 } else {
                     bufferedWriter.write(KEEP_ALIVE_CHECK);
                 }
@@ -81,7 +82,7 @@ public class HeartbeatSocketThread extends Thread{
     }
 
     public interface OnHeartbeatSocketResponse {
-        public void onResponse(String data);
+        public void onResponse(String hostAddress, int port, String data);
     }
 }
 

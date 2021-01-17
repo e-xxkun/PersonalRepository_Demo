@@ -3,9 +3,7 @@ package com.xxkun.relayserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class HeartbeatSocketServer implements HeartbeatSocketThread.OnHeartbeatSocketResponse{
@@ -24,6 +22,7 @@ public class HeartbeatSocketServer implements HeartbeatSocketThread.OnHeartbeatS
             while (!stop) {
                 Socket socket = serverSocket.accept();
                 HeartbeatSocketThread heartbeatSocketThread = new HeartbeatSocketThread(socket);
+                heartbeatSocketThread.setOnHeartbeatSocketResponse(this);
                 heartbeatSocketThread.start();
             }
         } catch (IOException e) {
@@ -34,7 +33,17 @@ public class HeartbeatSocketServer implements HeartbeatSocketThread.OnHeartbeatS
     @Override
     public void onConnect(HeartbeatSocketThread heartbeatSocketThread, String data) {
         hsThreadMap.put(data, heartbeatSocketThread);
-        heartbeatSocketThread.send("OPEN_UDP");
+        int udpPort = 8794;
+        UDPReceiveThread udpReceiveThread = new UDPReceiveThread(udpPort);
+        udpReceiveThread.setOnUDPResponse(new UDPReceiveThread.OnUDPResponse() {
+            @Override
+            public void onResponse(String hostAddress, int port, String data) {
+
+            }
+        });
+        String token = "pass";
+        udpReceiveThread.start();
+        heartbeatSocketThread.send(udpPort + ":" + token);
     }
 
     @Override
