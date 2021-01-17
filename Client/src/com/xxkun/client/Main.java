@@ -19,14 +19,16 @@ public class Main {
 
 
 
-        UDPTransfer udpTransfer = new UDPTransfer();
 
-        System.out.println("Input port of Server:");
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Input Host Name of Server:");
+        String hostName = scanner.next();
+        System.out.println("Input port of Server:");
         String token = "pass";
         int port = scanner.nextInt();
 
-        SocketAddress receiveAddress = new InetSocketAddress("127.0.0.1", port);
-        udpTransfer.sendAndReceive(receiveAddress, token);
+        SocketAddress receiveAddress = new InetSocketAddress(hostName, port);
+        UDPTransferThread udpTransfer = new UDPTransferThread(receiveAddress, token);
+        udpTransfer.start();
     }
 }

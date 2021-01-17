@@ -8,7 +8,7 @@ import java.util.Date;
 
 public class UDPReceiveThread extends Thread {
 
-    private static final int DATA_LEN = 4096;
+    private static final int DATA_LEN = 1024;
 
     private DatagramPacket outPacket;
     private DatagramPacket inPacket;
@@ -47,10 +47,22 @@ public class UDPReceiveThread extends Thread {
                     udpResponse.onResponse(inPacket.getAddress().getHostAddress(), inPacket.getPort(), "CONNECT FAIL");
                 }
             }
+
+            String UDP_CHECK = "UDP_ALIVE";
+            byte[] outBuff = UDP_CHECK.getBytes();
+            outPacket = new DatagramPacket(outBuff, outBuff.length, inPacket.getSocketAddress());
+            for (int i = 0;i < 10000;i ++) {
+                datagramSocket.send(outPacket);
+                System.out.println("UDP_IP_" + outPacket.getAddress() + ": CHECK " + i);
+                sleep(4000);
+            }
+
             datagramSocket.close();
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
         }

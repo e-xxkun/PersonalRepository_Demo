@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class UDPTransferThread extends Thread{
 
-    private static final int DATA_LEN = 4096;
+    private static final int DATA_LEN = 1024;
 
     private DatagramPacket outPacket;
     private DatagramPacket inPacket;
@@ -50,16 +50,16 @@ public class UDPTransferThread extends Thread{
                     break;
                 }
 
-                System.out.println("Local：");
-                String outData = scanner.next();
-
-                outBuff = outData.getBytes();
-                outPacket.setSocketAddress(inPacket.getSocketAddress());
-                outPacket.setData(outBuff);
-                datagramSocket.send(outPacket);
-                if ("exit".equals(outData)) {
-                    break;
-                }
+//                System.out.println("Local：");
+//                String outData = scanner.next();
+//
+//                outBuff = outData.getBytes();
+//                outPacket.setSocketAddress(inPacket.getSocketAddress());
+//                outPacket.setData(outBuff);
+//                datagramSocket.send(outPacket);
+//                if ("exit".equals(outData)) {
+//                    break;
+//                }
             }
             datagramSocket.close();
         } catch (SocketException e) {

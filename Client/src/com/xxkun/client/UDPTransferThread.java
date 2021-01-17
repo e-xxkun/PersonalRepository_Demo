@@ -4,14 +4,23 @@ import java.io.IOException;
 import java.net.*;
 import java.util.Scanner;
 
-public class UDPTransfer {
+public class UDPTransferThread extends Thread{
 
     private DatagramPacket outPacket;
     private DatagramPacket inPacket;
 
-    private static final int DATA_LEN = 4096;
+    private static final int DATA_LEN = 1024;
 
-    public void sendAndReceive(SocketAddress receiveAddress, String token) {
+    private SocketAddress receiveAddress;
+    private String token;
+
+    public UDPTransferThread(SocketAddress receiveAddress, String token) {
+        this.receiveAddress = receiveAddress;
+        this.token = token;
+    }
+
+    @Override
+    public void run() {
 //        SocketAddress receiveAddress = new InetSocketAddress("127.0.0.1", 8888);
         try {
             DatagramSocket datagramSocket = new DatagramSocket();
@@ -36,23 +45,30 @@ public class UDPTransfer {
 
                 outBuff = outData.getBytes();
                 outPacket.setData(outBuff);
-                datagramSocket.send(outPacket);
+
+                for (int i = 0;i < 20;i ++) {
+                    datagramSocket.send(outPacket);
+                    System.out.println("SEND : " + i);
+                    sleep(500);
+                }
 
                 if ("exit".equals(outData)) {
                     break;
                 }
 
-                datagramSocket.receive(inPacket);
-                inBuff = inPacket.getData();
-                String inData = new String(inBuff);
-
-                System.out.println("Server_"+inPacket.getAddress()+":"+inPacket.getPort()+" ：" + inData);
+//                datagramSocket.receive(inPacket);
+//                inBuff = inPacket.getData();
+//                String inData = new String(inBuff);
+//
+//                System.out.println("Server_"+inPacket.getAddress()+":"+inPacket.getPort()+" ：" + inData);
             }
             scanner.close();
             datagramSocket.close();
         } catch (SocketException e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
